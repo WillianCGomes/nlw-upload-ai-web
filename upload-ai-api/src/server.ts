@@ -7,7 +7,6 @@ import { generateAiCompletionRoute } from "./routes/generate-ai-completion";
 
 const app = fastify()
 
-// Limitando o acesso do backend através de uma url específica. Neste caso, * significa livre.
 app.register(fastifyCors, {
   origin: '*'
 })
