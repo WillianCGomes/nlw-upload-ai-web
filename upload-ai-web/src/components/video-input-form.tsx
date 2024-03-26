@@ -45,11 +45,15 @@ export function VideoInputForm(props: VideoInputFormProps) {
     const ffmpeg = await getFFmpeg()
 
     await ffmpeg.writeFile('input.mp4', await fetchFile(video))
-
+    // writeFile() serve para colocar um arquivo dentro do contexto do ffmpeg
+    // Ao usar o WebAssembly, é como se o ffmpeg não tivesse rodando na máquina do usuário, mas sim num ambiente totalmente isolado, não tendo acesso aos arquivos da aplicação
+    // Criar um arquivo dentro da máquina que o ffmpeg consegue enxergar
+    // fetchFile() recebe um arquivo e converte numa representação binária do arquivo
+  
     // ffmpeg.on('log', log => {
     //   console.log(log)
     // })
-
+    
     ffmpeg.on('progress', progress => {
       console.log('Convert progress: ' + Math.round(progress.progress * 100))
     })
@@ -68,9 +72,9 @@ export function VideoInputForm(props: VideoInputFormProps) {
 
     const data = await ffmpeg.readFile('output.mp3')
 
-    const audioFileBlob = new Blob([data], { type: 'audio/mp3' })
-    const audioFile = new File([audioFileBlob], 'output.mp3', {
-      type: 'audio/mpeg'
+    const audioFileBlob = new Blob([data], { type: 'audio/mpeg' })
+    const audioFile = new File([audioFileBlob], 'audio.mp3', {
+      type: 'audio/mpeg',
     })
 
     console.log('Convert finished.')
@@ -82,14 +86,24 @@ export function VideoInputForm(props: VideoInputFormProps) {
     event.preventDefault()
 
     const prompt = promptInputRef.current?.value
+    // A Ref serve para acessar a versão do elemento na DOM
+    // A Ref demora um pouco para ser criada, por isso o ?
 
     if (!videoFile) {
       return
     }
 
-    // converter o video em áudio
+    // Converter o vídeo em áudio
+    // A API da OpenAI só suporta até 25mb
+    // Possibilidade de diminuir consideravelmente a qualidade do áudio para caber mais áudio dentro de 25mb
+    // Ao diminuir a quantidade de mb, o upload para a API da OpenAI e para o back-end será mais rápido
+  
+    // Converter o vídeo em áudio no navegador do usuário
+    // O WebAssembly permite executar binários, linguagens que não são feitas para executar no navegador, dentro do navegador
+    // O ffmpeg é a biblioteca mais famosa para edição de vídeo e áudio dentro do node
+  
     setStatus('converting')
-
+    
     const audioFile = await convertVideoToAudio(videoFile)
 
     const data = new FormData()
@@ -118,8 +132,13 @@ export function VideoInputForm(props: VideoInputFormProps) {
       return null
     }
 
-    return URL.createObjectURL(videoFile)
+    return URL.createObjectURL(videoFile) // createObjectURL cria uma url de pré-visualização de um arquivo
   }, [videoFile])
+
+  // No React, ao fazer a atualização de um estado, o conteúdo do componente é recalculado do zero
+  // A previewURL permite fazer uma pré-visualização do vídeo que o usuário fez upload
+  // A previewURL não deve ser gerada do zero toda vez que o componente for renderizado novamente
+  // O useMemo permite que a variável previewURL seja recarregada somente se o videoFile mudar
 
   return (
     <form onSubmit={handleUploadVideo} className="space-y-6">
@@ -152,10 +171,11 @@ export function VideoInputForm(props: VideoInputFormProps) {
         />
       </div>
 
-      <Button
-        data-success={status === 'success'}
-        disabled={status !== 'waiting'}
-        type="submit"
+      <Button 
+        // data atributes do HTML geralmente são usados para representar um estado do elemento em tela
+        data-success={status === 'success'} // true quando o status for success
+        disabled={status !== 'waiting'} 
+        type="submit" 
         className="w-full data-[success=true]:bg-emerald-400"
       >
         {status === 'waiting'? (
@@ -166,5 +186,5 @@ export function VideoInputForm(props: VideoInputFormProps) {
         ) : statusMessages[status]}
       </Button>
     </form>
-  );
+  )
 }

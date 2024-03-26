@@ -39,10 +39,12 @@ export function PromptSelect(props: PromptSelectProps) {
       <SelectContent>
         {prompts?.map(prompt => {
           return (
-            <SelectItem key={prompt.id} value={prompt.id}>{prompt.title}</SelectItem>
+            <SelectItem key={prompt.id} value={prompt.id}>
+              {prompt.title}
+            </SelectItem>
           )
         })}
       </SelectContent>
     </Select>
-  );
+  )
 }

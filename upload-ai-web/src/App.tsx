@@ -29,7 +29,7 @@ export function App() {
     },
     headers: {
       'Content-Type': 'application/json',
-    }
+    },
   })
 
   return (
@@ -69,7 +69,7 @@ export function App() {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            Lembre-se: você pode utilizar a variável <code className="text-violet-400">{`{transcription}`}</code> no seu prompt para adicionar o conteúdo da transcrição do vídeo selecionado.
+            Lembre-se: você pode utilizar a variável <code className="text-violet-400">{'{transcription}'}</code> no seu prompt para adicionar o conteúdo da transcrição do vídeo selecionado.
           </p>
         </div>
 
@@ -94,7 +94,7 @@ export function App() {
                   <SelectItem value="gpt3.5">GPT 3.5-turbo 16k</SelectItem>
                 </SelectContent>
               </Select>
-              <span className="block text-sm text-muted-foreground italic">
+              <span className="block text-xs text-muted-foreground italic">
                 Você poderá customizar essa opção em breve
               </span>
             </div>
@@ -110,8 +110,8 @@ export function App() {
                 value={[temperature]}
                 onValueChange={value => setTemperature(value[0])}
               />
-              <span className="block text-sm text-muted-foreground italic leading-relaxed">
-                Valores mais altor tendem a deixar o resultado mais criativo e com possíveis erros.
+              <span className="block text-xs text-muted-foreground italic leading-relaxed">
+                Valores mais altos tendem a deixar o resultado mais criativo e com possíveis erros.
               </span>
             </div>
 

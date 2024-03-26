@@ -1,10 +1,10 @@
-import { FastifyInstance } from "fastify";
-import { z } from "zod";
+import { FastifyInstance } from 'fastify'
+import { z } from 'zod'
 import { streamToResponse, OpenAIStream } from 'ai'
-import { prisma } from "../lib/prisma";
-import { openai } from "../lib/openai";
+import { prisma } from '../lib/prisma'
+import { openai } from '../lib/openai'
 
-export async function generateAiCompletionRoute(app: FastifyInstance) {
+export async function generateAICompletionRoute(app: FastifyInstance) {
   app.post('/ai/complete', async (req, reply) => {
     const bodySchema = z.object({
       videoId: z.string().uuid(),
@@ -16,7 +16,7 @@ export async function generateAiCompletionRoute(app: FastifyInstance) {
 
     const video = await prisma.video.findUniqueOrThrow({
       where: {
-        id: videoId
+        id: videoId,
       }
     })
 
@@ -30,18 +30,19 @@ export async function generateAiCompletionRoute(app: FastifyInstance) {
       model: 'gpt-3.5-turbo-16k',
       temperature,
       messages: [
-        { role: 'user', content: promptMessage }
+        { role: 'user', content: promptMessage },
       ],
       stream: true,
     })
 
     const stream = OpenAIStream(response)
 
-    streamToResponse(stream, reply.raw, {
+    streamToResponse(stream, reply.raw, { // raw retorna a referência da resposta nativa do node
+      // por estar usando a resposta interna do node, é necessário fazer a configuração do cors de forma manual
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      }
+      },
     })
   })
 }

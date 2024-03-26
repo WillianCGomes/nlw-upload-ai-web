@@ -1,16 +1,18 @@
-import { FastifyInstance } from "fastify";
-import { createReadStream } from "node:fs";
-import { z } from "zod";
-import { prisma } from "../lib/prisma";
-import { openai } from "../lib/openai";
+import { FastifyInstance } from 'fastify'
+import { createReadStream } from 'node:fs'
+import { z } from 'zod'
+import { prisma } from '../lib/prisma'
+import { openai } from '../lib/openai'
 
 export async function createTranscriptionRoute(app: FastifyInstance) {
   app.post('/videos/:videoId/transcription', async (req) => {
     const paramsSchema = z.object({
       videoId: z.string().uuid(),
     })
-
+    
     const { videoId } = paramsSchema.parse(req.params)
+    // o parse vai validar se o req.params está seguindo o formato do paramsSchema
+    // se sim, retorna o objeto
 
     const bodySchema = z.object({
       prompt: z.string(),
@@ -44,11 +46,9 @@ export async function createTranscriptionRoute(app: FastifyInstance) {
       },
       data: {
         transcription,
-      }
+      },
     })
 
-    return {
-      transcription,
-    }
+    return { transcription }
   })
 }
